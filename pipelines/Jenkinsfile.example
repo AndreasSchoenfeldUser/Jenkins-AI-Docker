@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+    options {
+        timestamps()
+        timeout(time: 15, unit: 'MINUTES')
+        ansiColor('xterm')
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Hier würde SCM-Checkout passieren'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'echo "Build-Schritt — z.B. mvn -B package"'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'echo "Test-Schritt — z.B. mvn -B test"'
+            }
+        }
+    }
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}

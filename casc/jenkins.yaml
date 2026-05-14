@@ -1,0 +1,50 @@
+jenkins:
+  systemMessage: "Jenkins — managed by Configuration as Code (JCasC)."
+  numExecutors: 2
+  mode: NORMAL
+  scmCheckoutRetryCount: 2
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: true
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "${JENKINS_ADMIN_ID}"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+unclassified:
+  location:
+    url: "http://localhost:8080/"
+
+jobs:
+  - script: >
+      pipelineJob('hello-pipeline') {
+        description('Demo pipeline managed by JCasC')
+        definition {
+          cps {
+            sandbox(true)
+            script("""
+              pipeline {
+                agent any
+                options { timestamps() }
+                stages {
+                  stage('Greet') {
+                    steps { echo 'Hello from Jenkins-as-Code!' }
+                  }
+                  stage('Env') {
+                    steps { sh 'printenv | sort | head -n 20' }
+                  }
+                  stage('Sleep') {
+                    steps { sh 'sleep 2 && echo done' }
+                  }
+                }
+              }
+            """.stripIndent())
+          }
+        }
+      }
+  - file: /var/jenkins_conf/jobs/seed.groovy
