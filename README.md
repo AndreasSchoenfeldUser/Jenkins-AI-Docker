@@ -90,6 +90,9 @@ Detaillierte Installations- und Bedienungsanleitung: **[Anleitung.md](Anleitung.
 | `jenkins_get_nodes`        | Build-Nodes                                                  |
 | `jenkins_safe_restart`     | Safe-Restart der Instanz                                     |
 
+Eine kuratierte Sammlung natürlichsprachlicher Prompts, die diese Tools auslösen
+(inkl. Beispielsessions und Anti-Patterns), findet sich in **[PROMPTS.md](PROMPTS.md)**.
+
 ## Repository-Struktur
 
 ```
@@ -97,6 +100,7 @@ Detaillierte Installations- und Bedienungsanleitung: **[Anleitung.md](Anleitung.
 ├── README.md                 # Diese Datei
 ├── CLAUDE.md                 # Anforderungen & Konventionen (für Claude Code)
 ├── Anleitung.md              # Bedienungsanleitung
+├── PROMPTS.md                # Prompt-Katalog: Jenkins via Claude Code steuern
 ├── docker-compose.yml
 ├── Dockerfile
 ├── plugins.txt
