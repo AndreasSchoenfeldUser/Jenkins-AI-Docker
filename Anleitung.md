@@ -192,6 +192,8 @@ docker run --rm \
 | MCP-Tool antwortet mit 403                 | Crumb-Issue — Passwort/Token in MCP-Env prüfen                              |
 | Plugin-Fehler beim Start                   | Inkompatible Plugin-Version in `plugins.txt`                                |
 | MCP-Server `not connected` in Claude Code  | Pfad zur Python-`.venv` falsch oder Skript wirft beim Import einen Fehler   |
+| `configured logging driver does not support reading` bei `docker logs` | Der globale Docker-Daemon-Treiber ist nicht `json-file`. Wir setzen den Treiber im `docker-compose.yml` für Jenkins explizit auf `json-file` — `docker-compose up -d` einmal neu ausführen.|
+| `Remote host terminated the handshake` beim Plugin-Download | Update-Mirror temporär nicht erreichbar — Build erneut starten (`docker-compose build`). Plugin-cli hat 3 Retries.|
 
 Container-Shell für Debugging:
 ```bash
