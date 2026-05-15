@@ -20,6 +20,13 @@ services:
       - jenkins_home:/var/jenkins_home
       - ./casc:/var/jenkins_conf/casc:ro
       - ./jobs:/var/jenkins_conf/jobs:ro
+      # Docker-outside-of-Docker: Pipelines können den Daemon des Hosts nutzen.
+      - /var/run/docker.sock:/var/run/docker.sock
+    # Der jenkins-User braucht eine GID, die Schreibrechte auf /var/run/docker.sock hat.
+    # DOCKER_GID kommt aus .env — Default 0 (root). Auf macOS/Docker Desktop ist die
+    # GID des Sockets meist 0 (root). Auf Linux: `stat -c '%g' /var/run/docker.sock`.
+    group_add:
+      - "${DOCKER_GID:-0}"
     logging:
       driver: json-file
       options:

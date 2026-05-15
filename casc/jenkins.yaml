@@ -46,3 +46,4 @@ jobs:
         }
       }
   - file: /var/jenkins_conf/jobs/seed.groovy
+  - file: /var/jenkins_conf/jobs/python_docker_demo.groovy
