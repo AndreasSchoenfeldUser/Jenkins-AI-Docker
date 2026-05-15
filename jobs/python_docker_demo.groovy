@@ -1,5 +1,5 @@
 pipelineJob('python-docker-demo') {
-    description('Baut ein Python-Image (mit requirements.txt) und führt darin ein Demo-Skript aus. Setzt Docker-outside-of-Docker via /var/run/docker.sock voraus.')
+    description('Baut ein Python-Image und führt es aus — komplett über die Docker-Pipeline-API (docker.build / image.inside). Setzt Docker-outside-of-Docker via /var/run/docker.sock voraus.')
     definition {
         cps {
             sandbox(true)
@@ -15,7 +15,6 @@ pipelineJob('python-docker-demo') {
                         string(name: 'GREETING', defaultValue: 'Hallo aus dem Python-Container', description: 'Text, den das Demo-Skript ausgibt')
                     }
                     environment {
-                        // Defensiv: auch beim allerersten Run (parameters noch nicht registriert) ist IMAGE_TAG gesetzt.
                         IMAGE_TAG = "${params.IMAGE_TAG ?: 'jenkins-python-demo:latest'}"
                         GREETING  = "${params.GREETING  ?: 'Hallo aus dem Python-Container'}"
                     }
@@ -23,7 +22,6 @@ pipelineJob('python-docker-demo') {
                         stage('Verify Docker') {
                             steps {
                                 sh 'docker version'
-                                sh 'docker info | head -n 20'
                             }
                         }
                         stage('Prepare files') {
@@ -55,23 +53,34 @@ pipelineJob('python-docker-demo') {
                                         ''
                                     ].join('\\n')
                                 }
-                                sh 'ls -la && echo --- && cat Dockerfile && echo --- && cat requirements.txt && echo --- && cat hello.py'
+                                sh 'ls -la'
                             }
                         }
-                        stage('Build image') {
+                        stage('Build image (Docker Pipeline API)') {
                             steps {
-                                sh 'docker build -t "${IMAGE_TAG}" .'
+                                script {
+                                    // Docker Pipeline API: docker.build(tag, context)
+                                    docker.build(env.IMAGE_TAG, '.')
+                                }
                             }
                         }
-                        stage('Run script') {
+                        stage('Run container (Docker Pipeline API)') {
                             steps {
-                                sh 'docker run --rm -e GREETING="${GREETING}" "${IMAGE_TAG}"'
+                                script {
+                                    // Docker Pipeline API: image.inside { ... } führt Befehle im Container aus.
+                                    // Workspace wird automatisch gemountet; das Image-CMD wird übersteuert.
+                                    docker.image(env.IMAGE_TAG).inside("-e GREETING='${env.GREETING}'") {
+                                        sh 'python /app/hello.py'
+                                    }
+                                }
                             }
                         }
                     }
                     post {
                         always {
-                            sh 'docker image rm "${IMAGE_TAG}" || true'
+                            script {
+                                sh "docker image rm ${env.IMAGE_TAG} || true"
+                            }
                             cleanWs()
                         }
                     }

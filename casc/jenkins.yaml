@@ -18,6 +18,13 @@ unclassified:
   location:
     url: "http://localhost:8080/"
 
+appearance:
+  pipelineGraphView:
+    showGraphOnBuildPage: true
+    showGraphOnJobPage: true
+    showStageDurations: true
+    showStageNames: true
+
 jobs:
   - script: >
       pipelineJob('hello-pipeline') {
