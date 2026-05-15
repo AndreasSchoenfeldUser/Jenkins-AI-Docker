@@ -18,8 +18,12 @@ die Jenkins-REST-API steuern lässt — via mitgeliefertem MCP-Server.
 
 - **Reproduzierbares Image** — `jenkins/jenkins:lts-jdk21` + gepinnte Plugins über [plugins.txt](plugins.txt)
 - **Setup-Wizard aus** — Administrator wird via JCasC aus `.env` angelegt
-- **Demo-Jobs out-of-the-box** — eine inline-Pipeline (`hello-pipeline`) und ein
-  Job-DSL-Seed (`seed-demo`)
+- **Demo-Jobs out-of-the-box** — inline-Pipeline (`hello-pipeline`), Job-DSL-Seed
+  (`seed-demo`) und ein Docker-Pipeline-Demo (`python-docker-demo`), der ein
+  Python-Image über die Docker-Pipeline-API (`docker.build` / `image.inside`) baut
+  und ausführt
+- **Pipeline Graph View als Default-Ansicht** — auf Build- und Job-Seite, statt
+  klassischer Stage View (per JCasC fixiert)
 - **MCP-Server für Claude Code** — 9 Tools für Version, Jobs, Builds, Logs, Queue, Nodes, Safe-Restart
 - **Resiliente Plugin-Installation** — bezieht Plugins direkt von `archives.jenkins.io`,
   unabhängig von den geo-redirected Mirror-Hosts
@@ -106,7 +110,9 @@ Eine kuratierte Sammlung natürlichsprachlicher Prompts, die diese Tools auslös
 ├── plugins.txt
 ├── .env.example
 ├── casc/jenkins.yaml         # Configuration-as-Code
-├── jobs/seed.groovy          # Job-DSL
+├── jobs/
+│   ├── seed.groovy          # Job-DSL (seed-demo)
+│   └── python_docker_demo.groovy  # Docker-Pipeline-API Demo
 ├── pipelines/Jenkinsfile.example
 └── mcp-server/               # Python-MCP-Server für die Jenkins-REST-API
     ├── jenkins_mcp.py
@@ -129,6 +135,30 @@ Eine kuratierte Sammlung natürlichsprachlicher Prompts, die diese Tools auslös
 - **Plugin-Versionen pinnen** — in `plugins.txt`.
 
 Details siehe [CLAUDE.md](CLAUDE.md).
+
+## Änderungen
+
+### 2026-05-15
+
+- **Docker-Pipeline-API**: Plugin `docker-workflow` ergänzt. Der Job
+  [`python-docker-demo`](jobs/python_docker_demo.groovy) baut und startet sein
+  Image jetzt über `docker.build(tag, '.')` und `docker.image(tag).inside { … }`
+  statt über direkte `sh 'docker …'`-Aufrufe.
+- **Pipeline Graph View statt Stage View**: Plugin `pipeline-graph-view`
+  ergänzt, `pipeline-stage-view` entfernt. Die Anzeige ist über JCasC fixiert
+  ([casc/jenkins.yaml](casc/jenkins.yaml)):
+
+  ```yaml
+  appearance:
+    pipelineGraphView:
+      showGraphOnBuildPage: true
+      showGraphOnJobPage: true
+      showStageDurations: true
+      showStageNames: true
+  ```
+
+  Damit bleibt die Einstellung auch nach `docker-compose down -v` erhalten —
+  kein manueller Klick unter *Manage Jenkins → Appearance* mehr nötig.
 
 ## Lizenz
 
